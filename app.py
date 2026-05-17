@@ -10,7 +10,7 @@ import re
 
 import chainlit as cl
 
-from main.src.trader.email_sender import send_email_via_mcp
+from main.src.trader.email_sender import email_mcp_configured, send_email_via_mcp
 from main.src.trader.graph import graph
 
 
@@ -71,7 +71,8 @@ async def analyze_company(company: str) -> None:
         await cl.Message(content=summary).send()
         report = f"# {company}\n\n{summary}"
         await cl.Message("Done.").send()
-        await _offer_email(report, company)
+        if email_mcp_configured():
+            await _offer_email(report, company)
     else:
         await cl.Message("No summary was produced.").send()
 

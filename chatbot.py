@@ -14,7 +14,6 @@ import os
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 import chainlit as cl
-import main.src.trader.graph as graph
 
 load_dotenv()
 

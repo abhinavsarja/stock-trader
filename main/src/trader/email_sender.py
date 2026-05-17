@@ -99,6 +99,19 @@ def _resolve_env() -> dict[str, str]:
     return env
 
 
+def email_mcp_configured() -> bool:
+    """Return whether the Resend MCP runtime can be used in this process."""
+    if not os.environ.get("RESEND_API_KEY"):
+        return False
+    if not os.environ.get("RESEND_FROM_EMAIL"):
+        return False
+    try:
+        _resolve_command()
+    except RuntimeError:
+        return False
+    return True
+
+
 async def send_email_via_mcp(*, to: str, subject: str, text: str) -> str:
     """Send a single email through the mcp-resend-email MCP server.
 

@@ -4,12 +4,24 @@
 #   docker run --rm -p 8080:8080 --env-file .env stock-trader:local
 #   open http://localhost:8080
 
+FROM node:20-bookworm-slim AS resend-mcp
+
+RUN npm install -g mcp-resend-email
+
 FROM python:3.11-slim-bookworm
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
 
 RUN pip install --no-cache-dir uv
+
+# Runtime dependency for main/src/trader/email_sender.py.
+# The app talks to this MCP server over stdio when a user requests email delivery.
+COPY --from=resend-mcp /usr/local/bin/node /usr/local/bin/node
+COPY --from=resend-mcp /usr/local/bin/npm /usr/local/bin/npm
+COPY --from=resend-mcp /usr/local/bin/npx /usr/local/bin/npx
+COPY --from=resend-mcp /usr/local/bin/mcp-resend-email /usr/local/bin/mcp-resend-email
+COPY --from=resend-mcp /usr/local/lib/node_modules /usr/local/lib/node_modules
 
 WORKDIR /app
 
